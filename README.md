@@ -21,7 +21,9 @@ __部分功能需要lua支持__
 
 - utils#ToggleComment()
 
-  切换当前行(或选中行)的注释状态，目前支持lua、python、vim、c、c++、java、javascript语言。__需要vim的lua支持__
+  切换当前行(或选中行)的注释状态，目前支持lua、python、vim、c、c++、java、javascript语言。</br>
+  
+  此功能__需要vim的lua支持__
 
 - utils#QuitBuffer(force)
 
@@ -42,7 +44,7 @@ __部分功能需要lua支持__
 " 使用F4键快速切换.c和.h文件
 nmap <F4> :call utils#ToggleHeader()
 " 使用F5键快速运行一个脚本
-nmap <F4> :call utils#ToggleHeader()
+nmap <F5> :call utils#QuickRun()
 ```
 
 需要使用哪个函数的功能就使用call命令调用哪个函数。
