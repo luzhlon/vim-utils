@@ -3,19 +3,6 @@
 "                    Some useful functions
 "                                   by codesoul
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-lua << EOF
-vim.echo = function(msg) return vim.command('echo "'..msg..'"') end
-vim.line = function(m) return vim.eval('line(\''..m..'\'') end
-Comment = {
-    lua = '--',
-    python = '#',
-    vim = '"',
-    c = '//',
-    cpp = '//',   
-    java = '//',
-    javascript = '//'
-}
-EOF
 " if exists e in the list
 func! s:listExist(list, e)
     for i in a:list
@@ -50,25 +37,24 @@ func! utils#ToggleHeader()
         echo 'no cxx file'
     endif
 endf
+let s:comment = {'lua' : '--', 'python' : '#', 'vim' : '"',
+            \    'c' : '//', 'cpp' : '//',   'java' : '//', 'javascript' : '//'}
 " Toggle comment
 func! utils#ToggleComment() range
-lua << EOF
-    local b = vim.buffer()           -- current buffer
-    local fl = vim.eval('a:firstline')
-    local ll = vim.eval('a:lastline')
-    for ln = fl, ll do
-        local line = b[ln]
-        local ft = vim.eval '&ft'
-        local comment = Comment[ft]
-        if not comment then return end
-        local pat = '^%s*'..comment
-        if line:find(pat) then
-            b[ln] = line:gsub('^(%s*)'..comment, '%1', 1)
+    let l:i = a:firstline
+    if !exists('s:comment[&ft]')
+        return
+    endif
+    while l:i <= a:lastline
+        let l:line = getline(l:i)
+        let l:comchar = s:comment[&ft]
+        if match(l:line, '^' . l:comchar) >= 0
+            call setline(l:i, substitute(l:line, '^'.l:comchar, '', ''))
         else
-            b[ln] = comment..line
-        end
-    end
-EOF
+            call setline(l:i, l:comchar . l:line)
+        endif
+        let l:i += 1
+    endw
 endf
 " get the current buffer number
 func! s:getcurbuf()

@@ -21,7 +21,7 @@ __部分功能需要lua支持__
 
 - utils#ToggleComment()
 
-  切换当前行(或选中行)的注释状态，目前支持lua、python、vim、c、c++、java、javascript语言。__需要vim的lua支持__
+  切换当前行(或选中行)的注释状态，目前支持lua、python、vim、c、c++、java、javascript语言。
 
 - utils#QuitBuffer(force)
 
