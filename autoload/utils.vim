@@ -61,7 +61,7 @@ func! utils#OpenFile(...)
     if exists('a:1')
         call execute('e! ' . a:1)
     else
-        call execute('e! ' . input('Open file: '))
+        call execute('e! ' . input('Open file: ', '', 'file'))
     endif
 endf
 " Run a script quickly
