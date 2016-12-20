@@ -1,10 +1,22 @@
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"""""""""""""""""""""Some useful functions"""""""""""""""""""""""""
-""""""""""""""""""""""""""""""""""""by codesoul""""""""""""""""""""
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"--------------------------------------------------------------"
+"--------------------Some useful functions---------------------"
+"-----------------------------------by codesoul----------------"
+"--------------------------------------------------------------"
+"有更高效的实现方法，有空再写
+"getbufinfo(),getbufvar(, '&buftype')
+"下一个buffertype为空的buffer
+"call utils#SwitchFile('bn!')
+"call utils#SwitchFile('bp!')
+fun! utils#SwitchFile(cmd)
+    let l:nr = bufnr('%')
+    exe a:cmd
+    while bufnr('%') != l:nr && &buftype != ''
+        exe a:cmd
+    endw
+endf
 " Switch from .h and .cxx files
 let s:cxx_ext = ['c', 'cpp', 'cc']
-func! utils#ToggleHeader()
+fun! utils#ToggleHeader()
     let l:fp = expand('%:p')
     let l:ex = expand('%:p:e')
     let l:r =  expand('%:p:r')
@@ -29,11 +41,9 @@ endf
 let s:comment = {'lua' : '--', 'python' : '#', 'vim' : '"',
             \    'c' : '//', 'cpp' : '//',   'java' : '//', 'javascript' : '//'}
 " Toggle comment
-func! utils#ToggleComment() range
+fun! utils#ToggleComment() range
     let l:i = a:firstline
-    if !exists('s:comment[&ft]')
-        return
-    endif
+try
     while l:i <= a:lastline
         let l:line = getline(l:i)
         let l:comchar = s:comment[&ft]
@@ -44,25 +54,33 @@ func! utils#ToggleComment() range
         endif
         let l:i += 1
     endw
+endtry
 endf
 " Quit buffer but not with the window close
-func! utils#QuitBuffer(force)
+fun! utils#QuitBuffer(force)
     let l:curbuf = bufnr('%')
     let l:force = a:force ? '!' : ''
     call execute('bn'.l:force)
     call execute(l:curbuf.'bw'.l:force)
 endf
-" Toggle relative number
-func! utils#ToggleRNU()
-    if &relativenumber | set nornu | else | set rnu | endif
-endf
-" Open a file
-func! utils#OpenFile(...)
-    if exists('a:1')
-        call execute('e! ' . a:1)
+"Run python script
+fun! utils#RunPy()
+    write
+    if match(getline(1), '^#.*python3') < 0
+        !python %:p
     else
-        call execute('e! ' . input('Open file: ', '', 'file'))
+        !python3 %:p
     endif
+endf
+
+fun! utils#GetSelection()
+    " Why is this not a built-in Vim script function?!
+    let [lnum1, col1] = getpos("'<")[1:2]
+    let [lnum2, col2] = getpos("'>")[1:2]
+    let lines = getline(lnum1, lnum2)
+    let lines[-1] = lines[-1][: col2 - (&selection == 'inclusive' ? 1 : 2)]
+    let lines[0] = lines[0][col1 - 1:]
+    return join(lines, "\n")
 endf
 " Run a script quickly
 let s:qr_table = {
@@ -70,7 +88,7 @@ let s:qr_table = {
             \'python':{->execute('!python %:p', '')},
             \'vim':{->execute('so %')}
             \ }
-func! utils#QuickRun()
+fun! utils#QuickRun()
     try
         let H = s:qr_table[&ft]
         call execute('w')
