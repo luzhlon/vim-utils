@@ -8,31 +8,31 @@
 "call utils#SwitchFile('bn!')
 "call utils#SwitchFile('bp!')
 fun! utils#SwitchFile(cmd)
-    let l:nr = bufnr('%')
+    let nr = bufnr('%')
     exe a:cmd
-    while bufnr('%') != l:nr && &buftype != ''
+    while bufnr('%') != nr && &buftype != ''
         exe a:cmd
     endw
 endf
 " Switch from .h and .cxx files
 let s:cxx_ext = ['c', 'cpp', 'cc']
 fun! utils#ToggleHeader()
-    let l:fp = expand('%:p')
-    let l:ex = expand('%:p:e')
-    let l:r =  expand('%:p:r')
-    if index(s:cxx_ext, l:ex) < 0
-        for l:e in s:cxx_ext
-            let l:f = l:r . '.' . l:e
-            if filereadable(l:f)
-                execute('e! ' . l:f)
+    let fp = expand('%:p')
+    let ex = expand('%:p:e')
+    let r =  expand('%:p:r')
+    if index(s:cxx_ext, ex) < 0
+        for e in s:cxx_ext
+            let f = r . '.' . e
+            if filereadable(f)
+                exec 'e! ' . f
                 return
             endif
         endfo
         echo 'no cxx file'
     else
-        let l:hf = l:r . '.' .'h'
-        if filereadable(l:hf)
-            execute('e! ' . l:hf)
+        let hf = r . '.' .'h'
+        if filereadable(hf)
+            exec 'e! ' . hf
             return
         endif
         echo 'no header file'
@@ -41,27 +41,31 @@ endf
 let s:comment = {'lua' : '--', 'python' : '#', 'vim' : '"',
             \    'c' : '//', 'cpp' : '//',   'java' : '//', 'javascript' : '//'}
 " Toggle comment
-fun! utils#ToggleComment() range
-    let l:i = a:firstline
+fun! utils#ToggleComment(...) range
+    if a:0 > 1
+        let i = a:1 | let j = a:2
+    else
+        let i = a:firstline | let j = a:lastline
+    endif
 try
-    while l:i <= a:lastline
-        let l:line = getline(l:i)
-        let l:comchar = s:comment[&ft]
-        if match(l:line, '^' . l:comchar) >= 0
-            call setline(l:i, substitute(l:line, '^'.l:comchar, '', ''))
+    while i <= j
+        let line = getline(i)
+        let comchar = s:comment[&ft]
+        if match(line, '^' . comchar) >= 0
+            call setline(i, substitute(line, '^'.comchar, '', ''))
         else
-            call setline(l:i, l:comchar . l:line)
+            call setline(i, comchar . line)
         endif
-        let l:i += 1
+        let i += 1
     endw
 endtry
 endf
 " Quit buffer but not with the window close
 fun! utils#QuitBuffer(force)
-    let l:curbuf = bufnr('%')
-    let l:force = a:force ? '!' : ''
-    call execute('bn'.l:force)
-    call execute(l:curbuf.'bw'.l:force)
+    let curbuf = bufnr('%')
+    let force = a:force ? '!' : ''
+    exec 'bn'.force
+    exec curbuf.'bw'.force
 endf
 "Run python script
 fun! utils#RunPy()
@@ -91,7 +95,7 @@ let s:qr_table = {
 fun! utils#QuickRun()
     try
         let H = s:qr_table[&ft]
-        call execute('w')
+        write
         if type(H) == v:t_func
             call H()
         endif
