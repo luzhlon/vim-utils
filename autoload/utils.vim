@@ -61,11 +61,10 @@ try
 endtry
 endf
 " Quit buffer but not with the window close
-fun! utils#QuitBuffer(force)
+fun! utils#QuitBuffer()
     let curbuf = bufnr('%')
-    let force = a:force ? '!' : ''
-    exec 'bn'.force
-    exec curbuf.'bw'.force
+    exec bufexists(bufnr('#'))?'b!#':'bnext'
+    exec 'confirm '.curbuf.'bw'
 endf
 "Run python script
 fun! utils#RunPy()
@@ -87,19 +86,19 @@ fun! utils#GetSelection()
     return join(lines, "\n")
 endf
 " Run a script quickly
-let s:qr_table = {
-            \'lua':{->execute('!lua %:p', '') },
-            \'python':{->execute('!python %:p', '')},
-            \'vim':{->execute('so %')}
-            \ }
-fun! utils#QuickRun()
-    try
-        let H = s:qr_table[&ft]
-        write
-        if type(H) == v:t_func
-            call H()
-        endif
-    catch
-        return
-    endtry
-endf
+"let s:qr_table = {
+"            \'lua':{->execute('!lua %:p', '') },
+"            \'python':{->execute('!python %:p', '')},
+"            \'vim':{->execute('so %')}
+"            \ }
+"fun! utils#QuickRun()
+"    try
+"        let H = s:qr_table[&ft]
+"        write
+"        if type(H) == v:t_func
+"            call H()
+"        endif
+"    catch
+"        return
+"    endtry
+"endf
